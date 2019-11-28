@@ -116,9 +116,9 @@ class Packager(object):
             force=True,
         )
         output_path = self.storage.path(output_filename)
-        output_mtime = self.storage.get_modified_time(output_path)
-        if any([self.storage.get_modified_time(self.storage.path(path)) >=
-                output_mtime for path in paths]):
+        output_mtime = self.storage.get_modified_time(output_path) if self.storage.exists(output_path) else None
+        if not output_mtime or any((not self.storage.exists(path) or self.storage.get_modified_time(self.storage.path(path)) >=
+                                    output_mtime) for path in paths):
             content = compress(paths, **kwargs)
             self.save_file(output_filename, content)
         signal.send(sender=self, package=package, **kwargs)
